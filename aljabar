@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra Quest - Game Aljabar SMA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for nice LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+        }
+
+        .font-game {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-option {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-option:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .glow {
+            animation: pulse-glow 3s infinite;
+        }
+    </style>
+</head>
+<body class="text-white flex items-center justify-center p-4 min-h-screen">
+
+    <div id="app" class="w-full max-w-2xl">
+        <!-- START SCREEN -->
+        <div id="start-screen" class="glass-card rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl"></div>
+
+            <div class="inline-block bg-purple-500/20 p-4 rounded-2xl mb-4 border border-purple-500/30">
+                <i class="fa-solid font-game text-5xl text-purple-400">f(x)</i>
+            </div>
+            <h1 class="font-game text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 mb-2">
+                ALGEBRA QUEST
+            </h1>
+            <p class="text-slate-300 mb-8 max-w-md mx-auto">
+                Petualangan matematika SMA! Selesaikan soal-soal aljabar, kumpulkan poin, dan buktikan kamu adalah *Master Aljabar*!
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-left">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-amber-400 text-xl font-bold mb-1"><i class="fa-solid fa-clock mr-2"></i>Waktu</div>
+                    <p class="text-xs text-slate-400">45 detik per soal. Berpikir cepat!</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-emerald-400 text-xl font-bold mb-1"><i class="fa-solid fa-fire mr-2"></i>Streak</div>
+                    <p class="text-xs text-slate-400">Jawab beruntun untuk bonus poin ekstra.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-purple-400 text-xl font-bold mb-1"><i class="fa-solid fa-layer-group mr-2"></i>Materi</div>
+                    <p class="text-xs text-slate-400">Eksponen, Logaritma, Kuadrat, & Matriks.</p>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="glow font-game text-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-10 py-4 rounded-2xl font-bold transition transform active:scale-95 shadow-lg w-full sm:w-auto">
+                MULAI PETUALANGAN <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="hidden glass-card rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+            <!-- Header Status -->
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-3 border-b border-white/10 pb-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs uppercase tracking-widest text-slate-400">Soal</span>
+                    <span id="question-number" class="font-bold text-lg text-purple-300">1/10</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i>
+                        <span id="streak-count" class="font-bold text-amber-400">x0</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
+                        <i class="fa-solid fa-trophy text-amber-300"></i>
+                        <span id="score" class="font-bold text-amber-300">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-6">
+                <div id="timer-bar" class="bg-gradient-to-r from-emerald-400 to-cyan-500 h-full w-full transition-all duration-1000 ease-linear"></div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="bg-slate-900/60 p-6 rounded-2xl mb-6 border border-white/10 text-center min-h-[140px] flex flex-col justify-center items-center">
+                <span id="topic-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 mb-3">
+                    Topik
+                </span>
+                <div id="question-text" class="text-xl sm:text-2xl font-semibold leading-relaxed">
+                    Loading soal...
+                </div>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <!-- Direct JS Inserted Options -->
+            </div>
+
+            <!-- Hint & Explanation Panel -->
+            <div id="explanation-panel" class="hidden bg-slate-900/80 border border-purple-500/40 rounded-xl p-4 text-sm text-slate-300">
+                <div class="font-bold text-purple-400 mb-1 flex items-center">
+                    <i class="fa-solid fa-lightbulb mr-2"></i> Pembahasan Singkat:
+                </div>
+                <div id="explanation-text"></div>
+            </div>
+
+            <!-- Next Button Container -->
+            <div class="mt-6 text-right">
+                <button id="next-btn" onclick="nextQuestion()" class="hidden bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl font-bold transition">
+                    Soal Berikutnya <i class="fa-solid fa-forward ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-8 text-center shadow-2xl">
+            <div class="text-6xl mb-4" id="result-icon">🏆</div>
+            <h2 class="font-game text-3xl font-bold mb-1" id="result-title">Petualangan Selesai!</h2>
+            <p id="result-subtitle" class="text-slate-300 text-sm mb-6">Kamu telah menyelesaikan semua tantangan.</p>
+
+            <div class="bg-white/5 rounded-2xl p-6 border border-white/10 max-w-sm mx-auto mb-8 grid grid-cols-2 gap-4">
+                <div class="text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Skor Akhir</div>
+                    <div id="final-score" class="text-3xl font-bold text-amber-400 font-game">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Akurasi</div>
+                    <div id="final-accuracy" class="text-3xl font-bold text-emerald-400 font-game">0%</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="startGame()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Main Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questionsDB = [
+            {
+                topic: "Eksponen & Bentuk Akar",
+                question: "Bentuk sederhana dari $\\frac{x^3 y^{-2}}{x^{-1} y^4}$ adalah...",
+                options: ["$x^4 y^{-6}$", "$x^2 y^2$", "$x^4 y^6$", "$x^{-2} y^{-6}$"],
+                correct: 0,
+                explanation: "Gunakan sifat eksponen $\\frac{a^m}{a^n} = a^{m-n}$. Maka $x^{3-(-1)} y^{-2-4} = x^4 y^{-6}$."
+            },
+            {
+                topic: "Logaritma",
+                question: "Jika $^2\\log 3 = a$ dan $^2\\log 5 = b$, maka nilai dari $^2\\log 45$ adalah...",
+                options: ["$a + 2b$", "$2a + b$", "$a^2 + b$", "$a + b^2$"],
+                correct: 1,
+                explanation: "$^2\\log 45 = ^2\\log (3^2 \\times 5) = ^2\\log(3^2) + ^2\\log 5 = 2(^2\\log 3) + ^2\\log 5 = 2a + b$."
+            },
+            {
+                topic: "Persamaan Kuadrat",
+                question: "Jika Akar-akar dari $x^2 - 5x + 6 = 0$ adalah $\\alpha$ dan $\\beta$, maka nilai dari $\\alpha^2 + \\beta^2$ adalah...",
+                options: ["$13$", "$25$", "$19$", "$31$"],
+                correct: 0,
+                explanation: "$\\alpha+\\beta = 5$, $\\alpha\\beta = 6$. Gunakan rumus $\\alpha^2+\\beta^2 = (\\alpha+\\beta)^2 - 2\\alpha\\beta = 5^2 - 2(6) = 25 - 12 = 13$."
+            },
+            {
+                topic: "Fungsi Komposisi",
+                question: "Jika $f(x) = 2x + 3$ dan $g(x) = x^2 - 1$, maka $(f \\circ g)(x)$ adalah...",
+                options: ["$2x^2 + 1$", "$4x^2 + 12x + 8$", "$2x^2 + 5$", "$x^2 + 2x + 2$"],
+                correct: 0,
+                explanation: "$(f \\circ g)(x) = f(g(x)) = 2(x^2 - 1) + 3 = 2x^2 - 2 + 3 = 2x^2 + 1$."
+            },
+            {
+                topic: "Matriks",
+                question: "Determinan dari matriks $A = \\begin{pmatrix} 3 & 2 \\\\ 4 & 1 \\end{pmatrix}$ adalah...",
+                options: ["$-5$", "$5$", "$-11$", "$11$"],
+                correct: 0,
+                explanation: "$\\det(A) = (a \\times d) - (b \\times c) = (3 \\times 1) - (2 \\times 4) = 3 - 8 = -5$."
+            },
+            {
+                topic: "Sistem Persamaan Linear",
+                question: "Nilai $x$ yang memenuhi sistem persamaan $2x + y = 7$ dan $x - y = 2$ adalah...",
+                options: ["$3$", "$1$", "$4$", "$2$"],
+                correct: 0,
+                explanation: "Tambahkan kedua persamaan: $(2x+y) + (x-y) = 7+2 \\Rightarrow 3x = 9 \\Rightarrow x = 3$."
+            },
+            {
+                topic: "Barisan & Deret",
+                question: "Suku ke-n barisan aritmatika dirumuskan $U_n = 3n - 2$. Beda ($b$) dari barisan tersebut adalah...",
+                options: ["$3$", "$1$", "$-2$", "$5$"],
+                correct: 0,
+                explanation: "$U_1 = 1, U_2 = 4$. Beda $b = U_2 - U_1 = 4 - 1 = 3$. Koefisien dari $n$ adalah bedanya."
+            },
+            {
+                topic: "Pertidaksamaan Rasional",
+                question: "Himpunan penyelesaian dari $\\frac{x - 2}{x + 3} \\le 0$ adalah...",
+                options: ["$-3 < x \\le 2$", "$-3 \\le x \\le 2$", "$x < -3$ atau $x \\ge 2$", "$x \\le 2$"],
+                correct: 0,
+                explanation: "Pembuat nol: $x = 2$ dan $x = -3$ (penyebut $\\neq -3$). Uji titik memberikan $-3 < x \\le 2$."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let timer;
+        let timeLeft = 45;
+        let correctAnswersCount = 0;
+        let isAnswered = false;
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            correctAnswersCount = 0;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            clearInterval(timer);
+            timeLeft = 45;
+            
+            document.getElementById('explanation-panel').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            const q = questionsDB[currentQuestionIndex];
+            document.getElementById('question-number').innerText = `${currentQuestionIndex + 1}/${questionsDB.length}`;
+            document.getElementById('topic-badge').innerText = q.topic;
+            document.getElementById('question-text').innerHTML = q.question;
+            document.getElementById('score').innerText = score;
+            document.getElementById('streak-count').innerText = `x${streak}`;
+
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 p-4 rounded-2xl text-left font-semibold flex items-center justify-between transition-all';
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-slate-500"></i>`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsGrid.appendChild(btn);
+            });
+
+            // Re-render LaTeX math
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.width = '100%';
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                const percentage = (timeLeft / 45) * 100;
+                timerBar.style.width = `${percentage}%`;
+
+                if (timeLeft <= 10) {
+                    timerBar.className = "bg-gradient-to-r from-red-500 to-amber-500 h-full w-full transition-all duration-1000 ease-linear";
+                } else {
+                    timerBar.className = "bg-gradient-to-r from-emerald-400 to-cyan-500 h-full w-full transition-all duration-1000 ease-linear";
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeOut();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            if (isAnswered) return;
+            isAnswered = true;
+            clearInterval(timer);
+
+            const q = questionsDB[currentQuestionIndex];
+            const options = document.getElementById('options-grid').children;
+
+            if (selectedIndex === q.correct) {
+                // Correct
+                streak++;
+                correctAnswersCount++;
+                const bonusPoints = streak * 10;
+                const timeBonus = timeLeft * 2;
+                score += 100 + bonusPoints + timeBonus;
+
+                btn.className = "btn-option bg-emerald-500/20 border-2 border-emerald-500 p-4 rounded-2xl text-left font-semibold flex items-center justify-between text-emerald-300";
+                btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-400 text-xl";
+            } else {
+                // Wrong
+                streak = 0;
+                btn.className = "btn-option bg-rose-500/20 border-2 border-rose-500 p-4 rounded-2xl text-left font-semibold flex items-center justify-between text-rose-300";
+                btn.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-400 text-xl";
+
+                // Highlight Correct
+                options[q.correct].className = "btn-option bg-emerald-500/20 border-2 border-emerald-500 p-4 rounded-2xl text-left font-semibold flex items-center justify-between text-emerald-300";
+                options[q.correct].querySelector('i').className = "fa-solid fa-circle-check text-emerald-400 text-xl";
+            }
+
+            document.getElementById('score').innerText = score;
+            document.getElementById('streak-count').innerText = `x${streak}`;
+
+            showExplanation(q.explanation);
+        }
+
+        function timeOut() {
+            if (isAnswered) return;
+            isAnswered = true;
+            streak = 0;
+
+            const q = questionsDB[currentQuestionIndex];
+            const options = document.getElementById('options-grid').children;
+
+            options[q.correct].className = "btn-option bg-emerald-500/20 border-2 border-emerald-500 p-4 rounded-2xl text-left font-semibold flex items-center justify-between text-emerald-300";
+            options[q.correct].querySelector('i').className = "fa-solid fa-circle-check text-emerald-400 text-xl";
+
+            document.getElementById('streak-count').innerText = `x${streak}`;
+            showExplanation("Waktu habis! " + q.explanation);
+        }
+
+        function showExplanation(text) {
+            const panel = document.getElementById('explanation-panel');
+            const expText = document.getElementById('explanation-text');
+            expText.innerHTML = text;
+            panel.classList.remove('hidden');
+
+            document.getElementById('next-btn').classList.remove('hidden');
+
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionsDB.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const accuracy = Math.round((correctAnswersCount / questionsDB.length) * 100);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const subtitle = document.getElementById('result-subtitle');
+
+            if (accuracy >= 80) {
+                icon.innerText = "👑";
+                title.innerText = "Luar Biasa, Master Aljabar!";
+                subtitle.innerText = "Pemahaman aljabarmu sangat tajam dan presisi.";
+            } else if (accuracy >= 50) {
+                icon.innerText = "🎯";
+                title.innerText = "Ke
